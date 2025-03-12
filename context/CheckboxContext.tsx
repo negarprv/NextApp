@@ -1,33 +1,42 @@
+"use client";
+
 import { createContext, ReactNode, useContext, useReducer } from "react";
 
 interface CheckboxContextType {
-  selectedCheckbox: number[];
+  selectedCheckboxs: StateType;
   dispatch: React.Dispatch<ActionType>;
 }
 
-type ActionType =
-  | { type: "ADD"; payload: number }
-  | { type: "REMOVE"; payload: number };
+type StateType = {
+  selectedCheckboxs: number[];
+};
+
+type ActionType = { type: "TOGGLE"; payload: number };
 
 const CheckboxContext = createContext<CheckboxContextType | undefined>(
   undefined
 );
 
-const checkboxReducer = (state: number[], action: ActionType) => {
+const checkboxReducer = (state: StateType, action: ActionType): StateType => {
   switch (action.type) {
-    case "ADD":
-      return [...state, action.payload];
-    case "REMOVE":
-      return state.filter((item) => item !== action.payload);
+    case "TOGGLE":
+      return {
+        ...state,
+        selectedCheckboxs: state.selectedCheckboxs.includes(action.payload)
+          ? state.selectedCheckboxs.filter((item) => item !== action.payload)
+          : [...state.selectedCheckboxs, action.payload],
+      };
     default:
       return state;
   }
 };
 
 export const CheckboxProvider = ({ children }: { children: ReactNode }) => {
-  const [selectedCheckbox, dispatch] = useReducer(checkboxReducer, []);
+  const [selectedCheckboxs, dispatch] = useReducer(checkboxReducer, {
+    selectedCheckboxs: [],
+  });
   return (
-    <CheckboxContext.Provider value={{ selectedCheckbox, dispatch }}>
+    <CheckboxContext.Provider value={{ selectedCheckboxs, dispatch }}>
       {children}
     </CheckboxContext.Provider>
   );
