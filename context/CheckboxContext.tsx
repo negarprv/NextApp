@@ -3,7 +3,7 @@
 import { createContext, ReactNode, useContext, useReducer } from "react";
 
 interface CheckboxContextType {
-  selectedCheckboxs: StateType;
+  state: StateType;
   dispatch: React.Dispatch<ActionType>;
 }
 
@@ -24,7 +24,9 @@ const checkboxReducer = (state: StateType, action: ActionType): StateType => {
         ...state,
         selectedCheckboxs: state.selectedCheckboxs.includes(action.payload)
           ? state.selectedCheckboxs.filter((item) => item !== action.payload)
-          : [...state.selectedCheckboxs, action.payload],
+          : [...state.selectedCheckboxs, action.payload].sort((a, b) => {
+              return a - b;
+            }),
       };
     default:
       return state;
@@ -32,11 +34,11 @@ const checkboxReducer = (state: StateType, action: ActionType): StateType => {
 };
 
 export const CheckboxProvider = ({ children }: { children: ReactNode }) => {
-  const [selectedCheckboxs, dispatch] = useReducer(checkboxReducer, {
+  const [state, dispatch] = useReducer(checkboxReducer, {
     selectedCheckboxs: [],
   });
   return (
-    <CheckboxContext.Provider value={{ selectedCheckboxs, dispatch }}>
+    <CheckboxContext.Provider value={{ state, dispatch }}>
       {children}
     </CheckboxContext.Provider>
   );
